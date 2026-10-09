@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Laporan Kerusakan - Teknik Pabrik</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('auth.redirect_dashboard') }}">Teknik Pabrik - Laporan Kerusakan</a>
+            <div class="navbar-nav ms-auto">
+                <a href="{{ url_for('auth.redirect_dashboard') }}" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card shadow-sm p-4 bg-white border-0 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="fw-bold m-0 text-dark fs-4">Riwayat Laporan Kerusakan Mesin</h3>
+                
+                {% if current_user.role in ['ASTEK', 'Asisten Pengolahan'] %}
+                <a href="{{ url_for('laporan.buat_laporan') }}" class="btn btn-primary fw-semibold btn-sm">
+                    ➕ Buat Laporan Kerusakan Baru
+                </a>
+                {% endif %}
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show small shadow-sm" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle small">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>No</th>
+                            <th>No. Laporan</th>
+                            <th>Nama Mesin</th>
+                            <th>Lokasi Pabrik</th>
+                            <th>Tanggal Laporan</th>
+                            <th>Tgl Selesai</th>
+                            <th>Deskripsi Kerusakan</th>
+                            <th>Bukti Foto Awal</th>
+                            <th>Bukti Foto Selesai</th>
+                            <th>Status</th>
+                            <th>Aksi / TL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in laporan_list %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td class="fw-semibold">{{ item.nomor_laporan }}</td>
+                            <td>{{ item.mesin.nama_mesin if item.mesin else '-' }}</td>
+                            <td><span class="badge bg-secondary">{{ item.mesin.lokasi if item.mesin else '-' }}</span></td>
+                            <td>{{ item.tanggal_laporan }}</td>
+                            <td>
+                                {% if item.tanggal_realisasi %}
+                                    <span class="fw-semibold text-success">{{ item.tanggal_realisasi }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.deskripsi }}</td>
+                            <td>
+                                {% if item.foto_bukti %}
+                                <a href="{{ url_for('static', filename='uploads/' + item.foto_bukti) }}" target="_blank" class="btn btn-sm btn-outline-info py-0 px-1">Lihat</a>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.dokumentasi_realisasi %}
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% for foto in item.dokumentasi_realisasi.split(',') %}
+                                        <a href="{{ url_for('static', filename='uploads/' + foto) }}" target="_blank" class="btn btn-sm btn-outline-success py-0 px-1" style="font-size: 11px;">
+                                            Foto {{ loop.index }}
+                                        </a>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.status == 'SELESAI' %}
+                                    <span class="badge bg-success">SELESAI</span>
+                                {% elif item.status == 'PROSES' %}
+                                    <span class="badge bg-warning text-dark">PROSES</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">PENDING</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1 align-items-center">
+                                    {% if current_user.role == 'ASTEK' %}
+                                    <a href="{{ url_for('laporan.tindak_lanjut_laporan', laporan_id=item.id) }}" class="btn btn-warning btn-sm py-0 px-2 fw-semibold" style="font-size: 11px;">
+                                        ⚙️ TL
+                                    </a>
+                                    {% endif %}
+
+                                    {% if current_user.role in ['MASKep', 'ASTEK'] %}
+                                    <form action="{{ url_for('laporan.update_status', laporan_id=item.id) }}" method="POST" class="m-0">
+                                        <select name="status" class="form-select form-select-sm py-0 px-1" style="width: 95px; font-size: 11px;" onchange="this.form.submit()">
+                                            <option value="PENDING" {% if item.status == 'PENDING' %}selected{% endif %}>Pending</option>
+                                            <option value="PROSES" {% if item.status == 'PROSES' %}selected{% endif %}>Proses</option>
+                                            <option value="SELESAI" {% if item.status == 'SELESAI' %}selected{% endif %}>Selesai</option>
+                                        </select>
+                                    </form>
+
+                                    <form action="{{ url_for('laporan.hapus_laporan', laporan_id=item.id) }}" method="POST" class="m-0" onsubmit="return confirm('Yakin ingin menghapus laporan ini?');">
+                                        <button type="submit" class="btn btn-danger btn-sm py-0 px-1" style="font-size: 11px;">Hapus</button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="11" class="text-center text-muted py-4">Belum ada data laporan kerusakan mesin.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

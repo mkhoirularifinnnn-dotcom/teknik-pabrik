@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard MASKep</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">Teknik Pabrik - MASKep</a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text text-white me-3">Login sebagai: <strong>{{ user.username }}</strong></span>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="alert alert-secondary" role="alert">
+            <h4 class="alert-heading">Selamat Datang, MASKep!</h4>
+            <p>Pantau keseluruhan aktivitas maintenance, status mesin, dan laporan operasional secara berkala.</p>
+        </div>
+        
+        <!-- Tombol Pintasan Navigasi -->
+        <div class="mb-4">
+            <a href="{{ url_for('laporan.daftar_laporan') }}" class="btn btn-secondary fw-semibold shadow-sm">📋 Pantau Daftar Laporan Kerusakan</a>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm p-3">
+                    <h5 class="text-muted">Total Mesin</h5>
+                    <h2 class="fw-bold">0</h2>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm p-3">
+                    <h5 class="text-muted">Maintenance Terealisasi</h5>
+                    <h2 class="fw-bold text-success">0</h2>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm p-3">
+                    <h5 class="text-muted">Maintenance Tertunda</h5>
+                    <h2 class="fw-bold text-danger">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

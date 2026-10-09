@@ -1,0 +1,23 @@
+{% for item in kebutuhan_list %}
+<tr>
+    <td>{{ loop.index }}</td>
+    <td>{{ item.laporan.nomor_laporan }}</td>
+    <td>{{ item.barang.nama_barang }}</td>
+    <td>{{ item.jumlah_diminta }} {{ item.barang.satuan }}</td>
+    <td><span class="badge bg-warning">{{ item.status_pengadaan }}</span></td>
+    <td>
+        <!-- Tombol Aksi / Update Status oleh Pengadaan -->
+        <form action="{{ url_for('pengadaan.update_pengadaan', kebutuhan_id=item.id) }}" method="POST" class="d-inline">
+            <select name="status_pengadaan" class="form-select form-select-sm d-inline w-auto" onchange="this.form.submit()">
+                <option value="MENGAJUKAN" {% if item.status_pengadaan == 'MENGAJUKAN' %}selected{% endif %}>Menunggu / Mengajukan</option>
+                <option value="DIPROSES" {% if item.status_pengadaan == 'DIPROSES' %}selected{% endif %}>Diproses Pembelian</option>
+                <option value="SELESAI" {% if item.status_pengadaan == 'SELESAI' %}selected{% endif %}>Selesai (Barang Masuk)</option>
+            </select>
+        </form>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="6" class="text-center text-muted">Belum ada pengajuan pengadaan barang.</td>
+</tr>
+{% endfor %}

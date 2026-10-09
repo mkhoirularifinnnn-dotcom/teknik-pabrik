@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemeriksaan Kerusakan Mesin - Teknik Pabrik</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('auth.redirect_dashboard') }}">Teknik Pabrik - Pemeriksaan ASTEK</a>
+            <div class="navbar-nav ms-auto">
+                <a href="{{ url_for('laporan.daftar_laporan') }}" class="btn btn-outline-light btn-sm me-2">Kembali ke Daftar Laporan</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm p-4 bg-white">
+                    <h3 class="fw-bold mb-3">Form Pemeriksaan & Perbaikan Mesin</h3>
+                    
+                    <!-- Informasi Ringkas Laporan -->
+                    <div class="alert alert-secondary small mb-4">
+                        <p class="mb-1"><strong>No. Laporan:</strong> {{ laporan.nomor_laporan }}</p>
+                        <p class="mb-1"><strong>Mesin:</strong> {{ laporan.mesin.nama_mesin }}</p>
+                        <p class="mb-1"><strong>Pelapor:</strong> {{ laporan.pelapor.username }}</p>
+                        <p class="mb-0"><strong>Deskripsi Kerusakan:</strong> {{ laporan.deskripsi_kerusakan }}</p>
+                    </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show small" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <!-- Form Pemeriksaan -->
+                    <form action="{{ url_for('pemeriksaan.proses_pemeriksaan', laporan_id=laporan.id) }}" method="POST">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Tindakan Perbaikan / Analisa ASTEK</label>
+                            <textarea name="tindakan_perbaikan" class="form-control" rows="4" placeholder="Jelaskan tindakan perbaikan atau hasil pemeriksaan..." required></textarea>
+                        </div>
+
+                        <hr class="my-4">
+                        <h5 class="fw-bold text-secondary fs-6">Pengajuan Pengadaan Sparepart (Opsional)</h5>
+                        <p class="text-muted small">Jika perbaikan memerlukan suku cadang/barang baru, pilih barang dan masukkan jumlahnya di bawah ini agar otomatis masuk ke dashboard Pengadaan.</p>
+
+                        <div class="mb-3">
+                            <label class="form-label">Pilih Sparepart / Barang</label>
+                            <select name="barang_id" class="form-select">
+                                <option value="">-- Pilih Barang (Jika Perlu Pengadaan) --</option>
+                                {% for b in barang_list %}
+                                    <option value="{{ b.id }}">{{ b.nama_barang }} (Stok Tersedia: {{ b.stok }} {{ b.satuan }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Jumlah Diminta</label>
+                            <input type="number" name="jumlah_diminta" class="form-control" min="0" value="0">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Status Akhir Laporan</label>
+                            <select name="status_laporan" class="form-select" required>
+                                <option value="DIPROSES">Diproses (Sedang Dikerjakan)</option>
+                                <option value="MENUNGGU_BARANG">Menunggu Barang (Pengajuan Sparepart)</option>
+                                <option value="SELESAI">Selesai (Perbaikan Tuntas)</option>
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ url_for('laporan.daftar_laporan') }}" class="btn btn-secondary px-4">Batal</a>
+                            <button type="submit" class="btn btn-danger px-4 fw-semibold">Simpan Pemeriksaan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

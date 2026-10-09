@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Pengajuan Barang - ASTEK</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('auth.redirect_dashboard') }}">Teknik Pabrik - ASTEK Dashboard</a>
+            <div class="navbar-nav ms-auto">
+                <a href="{{ url_for('auth.redirect_dashboard') }}" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm p-4 bg-white">
+                    <h3 class="fw-bold mb-3">Form Pengajuan Sparepart / Barang</h3>
+                    <p class="text-muted small">Ajukan kebutuhan sparepart baru secara mandiri langsung ke bagian Pengadaan.</p>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show small" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form action="{{ url_for('pengadaan.astek_ajukan_barang') }}" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Kaitkan dengan No. Laporan (Opsional)</label>
+                            <select name="laporan_id" class="form-select">
+                                <option value="">-- Tanpa Laporan / Umum --</option>
+                                {% for l in laporan_list %}
+                                <option value="{{ l.id }}">
+                                    {{ l.nomor_laporan }} - {{ l.deskripsi[:40] if l.deskripsi else (l.keterangan_kerusakan[:40] if l.keterangan_kerusakan else 'Laporan #' ~ l.id) }}...
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Pilih Barang / Sparepart</label>
+                            <select name="barang_id" class="form-select" required>
+                                <option value="">-- Pilih Barang dari Master --</option>
+                                {% for b in barang_list %}
+                                <option value="{{ b.id }}">{{ b.nama_barang }} (Stok saat ini: {{ b.stok }} {{ b.satuan }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Jumlah yang Diminta</label>
+                            <input type="number" name="jumlah_diminta" class="form-control" min="1" value="1" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 fw-semibold">Kirim Pengajuan ke Pengadaan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

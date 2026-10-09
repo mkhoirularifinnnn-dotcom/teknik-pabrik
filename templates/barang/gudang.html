@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Gudang & Sparepart - Teknik Pabrik</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('auth.redirect_dashboard') }}">Teknik Pabrik - Gudang</a>
+            <div class="navbar-nav ms-auto">
+                <a href="{{ url_for('auth.redirect_dashboard') }}" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h3 class="fw-bold mb-3">Manajemen Stok & Pengajuan Sparepart</h3>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <!-- Tabel Stok Barang Gudang -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm p-3 bg-white">
+                    <h5 class="fw-bold mb-3">Stok Suku Cadang / Barang</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle small">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama Barang</th>
+                                    <th>Stok</th>
+                                    <th>Satuan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in stok_barang %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ b.nama_barang }}</td>
+                                    <td><strong>{{ b.stok }}</strong></td>
+                                    <td>{{ b.satuan }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Belum ada data barang di gudang.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Pengajuan Kebutuhan Barang -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm p-3 bg-white">
+                    <h5 class="fw-bold mb-3">Daftar Pengajuan Kebutuhan</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle small">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Laporan</th>
+                                    <th>Barang</th>
+                                    <th>Jumlah</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for k in kebutuhan_list %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ k.laporan.nomor_laporan }}</td>
+                                    <td>{{ k.barang.nama_barang }}</td>
+                                    <td>{{ k.jumlah_diminta }}</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark">{{ k.status_pengadaan }}</span>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Belum ada pengajuan kebutuhan barang.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

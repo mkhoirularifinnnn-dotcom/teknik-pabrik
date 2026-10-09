@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajukan Kebutuhan Sparepart - Teknik Pabrik</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('auth.redirect_dashboard') }}">Teknik Pabrik - ASTEK</a>
+            <div class="navbar-nav ms-auto">
+                <a href="{{ url_for('barang.daftar_barang') }}" class="btn btn-outline-light btn-sm me-2">Kembali</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm p-4 bg-white">
+                    <h4 class="fw-bold mb-3">Ajukan Kebutuhan Sparepart</h4>
+                    <div class="alert alert-secondary small mb-3">
+                        <strong>No. Laporan:</strong> {{ laporan.nomor_laporan }}<br>
+                        <strong>Mesin:</strong> {{ laporan.mesin.nama_mesin }}
+                    </div>
+
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Pilih Sparepart / Barang</label>
+                            <select name="barang_id" class="form-select form-select-sm" required>
+                                <option value="">-- Pilih Barang dari Gudang --</option>
+                                {% for b in barang_list %}
+                                    <option value="{{ b.id }}">{{ b.nama_barang }} (Stok: {{ b.stok }} {{ b.satuan }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Jumlah Diminta</label>
+                            <input type="number" name="jumlah_diminta" class="form-control form-control-sm" min="1" placeholder="Masukkan jumlah..." required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 btn-sm fw-semibold">Kirim Pengajuan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

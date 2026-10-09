@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preventive Maintenance - Teknik Pabrik</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('auth.redirect_dashboard') }}">Teknik Pabrik - Maintenance</a>
+            <div class="navbar-nav ms-auto">
+                <a href="{{ url_for('auth.redirect_dashboard') }}" class="btn btn-outline-light btn-sm me-2">Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h3 class="fw-bold mb-3">Jadwal & Realisasi Preventive Maintenance</h3>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show small" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <!-- Form Tambah Jadwal khusus ASTEK -->
+            {% if current_user.role == 'ASTEK' %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm p-3 bg-white">
+                    <h5 class="fw-bold mb-3">Tambah Jadwal PM</h5>
+                    <form method="POST">
+                        <div class="mb-2">
+                            <label class="form-label small fw-semibold">Pilih Mesin</label>
+                            <select name="mesin_id" class="form-select form-select-sm" required>
+                                <option value="">-- Pilih Mesin --</option>
+                                {% for m in mesin_list %}
+                                    <option value="{{ m.id }}">{{ m.kode_mesin }} - {{ m.nama_mesin }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-semibold">Jadwal Perawatan</label>
+                            <input type="date" name="jadwal_maintenance" class="form-control form-control-sm" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Keterangan / Jenis Servis</label>
+                            <textarea name="keterangan" class="form-control form-control-sm" rows="3" placeholder="Misal: Ganti oli berkala & cek filter..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm w-100 fw-semibold">Simpan Jadwal</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Tabel Daftar PM -->
+            <div class="{% if current_user.role == 'ASTEK' %}col-md-8{% else %}col-md-12{% endif %}">
+                <div class="card shadow-sm p-3 bg-white">
+                    <h5 class="fw-bold mb-3">Daftar Preventive Maintenance</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle small">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Mesin</th>
+                                    <th>Jadwal</th>
+                                    <th>Keterangan</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pm in pm_list %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ pm.mesin.nama_mesin }}</td>
+                                    <td>{{ pm.jadwal_maintenance.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ pm.keterangan }}</td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ pm.status }}</span>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Belum ada jadwal preventive maintenance.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
